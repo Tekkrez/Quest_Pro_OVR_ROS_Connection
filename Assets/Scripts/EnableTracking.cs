@@ -9,6 +9,7 @@ public class EnableTracking : MonoBehaviour
 
     ROSConnection ros;
     readonly string serviceName = "toggle_tracking";
+    bool prevButtonState = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,13 +21,18 @@ public class EnableTracking : MonoBehaviour
     void Update()
     {
         OVRInput.Update();
-        // if A is pressed, toggle tracking.
+        // if B is pressed, toggle tracking.
         // If tracking, stop. If stopped, start tracking
-        if(OVRInput.GetDown(OVRInput.Button.One,OVRInput.Controller.RTouch))
+        if(OVRInput.Get(OVRInput.RawButton.B) != prevButtonState)
         {
-            ToggleTrackingRequest();
+            prevButtonState = OVRInput.Get(OVRInput.RawButton.B);
+            
+            if(OVRInput.Get(OVRInput.RawButton.B) == true)
+            {
+                Debug.Log("Here");
+                ToggleTrackingRequest();
+            }
         }
-
     }
 
     private void ToggleTrackingRequest()

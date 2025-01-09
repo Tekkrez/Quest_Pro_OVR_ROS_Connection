@@ -52,7 +52,6 @@ public class EyeTrackingRay : MonoBehaviour
     Vector3  rayCastDirection = transform.TransformDirection(Vector3.forward) * rayDistance;
     if(Physics.Raycast(transform.position,rayCastDirection, out hit,Mathf.Infinity,layersToInclude))
     {
-        Debug.Log("here");
         lineRenderer.startColor=Color.yellow;
         lineRenderer.endColor=Color.yellow;
         if (hit.collider.gameObject == plane.gameObject)

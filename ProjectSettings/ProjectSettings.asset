@@ -743,6 +743,7 @@ PlayerSettings:
   webGLPowerPreference: 2
   scriptingDefineSymbols:
     Android: ROS2
+    Standalone: ROS2
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
