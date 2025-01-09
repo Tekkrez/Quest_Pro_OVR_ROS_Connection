@@ -6,7 +6,6 @@ using RosMessageTypes.Std;
 
 public class EnableTracking : MonoBehaviour
 {
-
     ROSConnection ros;
     readonly string serviceName = "toggle_tracking";
     bool prevButtonState = false;
@@ -14,7 +13,7 @@ public class EnableTracking : MonoBehaviour
     void Start()
     {
         ros = ROSConnection.GetOrCreateInstance();
-        ros.RegisterRosService<TriggerRequest, TriggerResponse>(serviceName);
+        ros.RegisterRosService<SetBoolRequest, SetBoolResponse>(serviceName);
     }
 
     // Update is called once per frame
@@ -29,7 +28,6 @@ public class EnableTracking : MonoBehaviour
             
             if(OVRInput.Get(OVRInput.RawButton.B) == true)
             {
-                Debug.Log("Here");
                 ToggleTrackingRequest();
             }
         }
@@ -37,11 +35,11 @@ public class EnableTracking : MonoBehaviour
 
     private void ToggleTrackingRequest()
     {
-        TriggerRequest triggerRequest = new TriggerRequest();
-        ros.SendServiceMessage<TriggerResponse>(serviceName,triggerRequest,ToggleTrackingCallback);
+        SetBoolRequest triggerRequest = new SetBoolRequest(true);
+        ros.SendServiceMessage<SetBoolResponse>(serviceName,triggerRequest,ToggleTrackingCallback);
     }
 
-    private void ToggleTrackingCallback(TriggerResponse response)
+    private void ToggleTrackingCallback(SetBoolResponse response)
     {
 
     }

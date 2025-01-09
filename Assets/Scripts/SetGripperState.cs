@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.Std;
 
-public class EnableTracking : MonoBehaviour
+public class SetGripperState : MonoBehaviour
 {
     ROSConnection ros;
     readonly string serviceName = "set_gripper_state";
@@ -21,20 +21,20 @@ public class EnableTracking : MonoBehaviour
     {
         OVRInput.Update();
         //If trigger is held, activate gripper, else deactivate gripper
-        if(OVRInput.Get(OVRInput.RawButton.LIndexTrigger) != prevButtonState)
+        if(OVRInput.Get(OVRInput.RawButton.RIndexTrigger) != prevButtonState)
         {
-            prevButtonState = OVRInput.Get(OVRInput.RawButton.LIndexTrigger);
-            SetGripperState(OVRInput.Get(OVRInput.RawButton.LIndexTrigger));
+            prevButtonState = OVRInput.Get(OVRInput.RawButton.RIndexTrigger);
+            SetGripperStateRequest(OVRInput.Get(OVRInput.RawButton.RIndexTrigger));
         }
     }
 
-    private void SetGripperState(bool state)
+    private void SetGripperStateRequest(bool state)
     {
-        SetBoolRequest triggerRequest = new TriggerRequest();
-        ros.SendServiceMessage<TriggerResponse>(serviceName,triggerRequest,SetGripperStateCallback);
+        SetBoolRequest boolRequest = new SetBoolRequest(state);
+        ros.SendServiceMessage<SetBoolResponse>(serviceName,boolRequest,SetGripperStateCallback);
     }
 
-    private void SetGripperStateCallback(TriggerResponse response)
+    private void SetGripperStateCallback(SetBoolResponse response)
     {
 
     }
