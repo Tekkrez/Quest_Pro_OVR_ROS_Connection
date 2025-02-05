@@ -20,7 +20,7 @@ public class RosSubscriber : MonoBehaviour
     {
         meshRenderer.material = new Material(Shader.Find("Standard"));
         ros = ROSConnection.GetOrCreateInstance();
-        ros.Subscribe<RosImage>("out/compressed",ReceiveMessage);
+        ros.Subscribe<RosImage>("head/right_camera/color/image_raw/compressed",ReceiveMessage);
     }
 
     // Update is called once per frame
