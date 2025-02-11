@@ -1,0 +1,7 @@
+# Custom service to request grasp poses from a given point cloud
+geometry_msgs/Pose grasp_pose
+float64 grasp_score
+geometry_msgs/Point contact_point
+float64 gripper_opening
+---
+bool success

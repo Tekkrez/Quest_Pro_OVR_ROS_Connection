@@ -1,0 +1,12 @@
+# Custom service to request grasp poses from a given point cloud
+sensor_msgs/Image image
+sensor_msgs/Image depth_image
+sensor_msgs/Image segmentation_map
+sensor_msgs/CameraInfo camera_info
+---
+geometry_msgs/Pose[] grasp_poses
+float64[] grasp_scores
+geometry_msgs/Point[] contact_points
+float64[] gripper_openings
+sensor_msgs/Image grasp_visualization
+bool success

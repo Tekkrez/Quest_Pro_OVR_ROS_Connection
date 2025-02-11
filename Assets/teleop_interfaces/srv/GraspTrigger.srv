@@ -1,0 +1,5 @@
+# Custom service to request grasp poses from a given point cloud
+std_msgs/Float64MultiArray gaze_point
+---
+bool success
+string message

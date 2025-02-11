@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
-using RosImage = RosMessageTypes.Sensor.CompressedImageMsg;
+using RosImage = RosMessageTypes.Sensor.ImageMsg;
 
 public class RosSubscriber : MonoBehaviour
 {
     [SerializeField]
     private MeshRenderer meshRenderer;
-
+    [SerializeField]
+    private string vrImageTopic;
     private Texture2D texture2D;
     private byte[] image;
     private bool isMessageReceived = false;
@@ -20,7 +21,7 @@ public class RosSubscriber : MonoBehaviour
     {
         meshRenderer.material = new Material(Shader.Find("Standard"));
         ros = ROSConnection.GetOrCreateInstance();
-        ros.Subscribe<RosImage>("head/right_camera/color/image_raw/compressed",ReceiveMessage);
+        ros.Subscribe<RosImage>(vrImageTopic,ReceiveMessage);
     }
 
     // Update is called once per frame
