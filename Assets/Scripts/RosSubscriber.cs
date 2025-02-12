@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
-using RosImage = RosMessageTypes.Sensor.ImageMsg;
+using RosImage = RosMessageTypes.Sensor.CompressedImageMsg;
 
 public class RosSubscriber : MonoBehaviour
 {
@@ -40,7 +40,7 @@ public class RosSubscriber : MonoBehaviour
             texture2D = new Texture2D(2,2);
             doOnce = !doOnce;
         }
-        image = imageData.data;
+        image =imageData.data;
         isMessageReceived = true;
     }
 
