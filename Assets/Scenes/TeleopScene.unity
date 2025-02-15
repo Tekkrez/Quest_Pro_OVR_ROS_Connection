@@ -314,7 +314,9 @@ MonoBehaviour:
   plane: {fileID: 1275164825}
   cursorCircle: {fileID: 500021630}
   visualizeLine: 0
-  serviceName: left_trigger_grasp
+  mainEye: 0
+  graspAssistServiceName: left_trigger_grasp
+  headViewServiceName: set_head_view
   cameraFacing: {fileID: 1577749885}
 --- !u!120 &143784111
 LineRenderer:
@@ -1187,7 +1189,9 @@ MonoBehaviour:
   plane: {fileID: 1275164825}
   cursorCircle: {fileID: 1402848087}
   visualizeLine: 0
-  serviceName: right_trigger_grasp
+  mainEye: 1
+  graspAssistServiceName: right_trigger_grasp
+  headViewServiceName: set_head_view
   cameraFacing: {fileID: 1577749885}
 --- !u!120 &1301458987
 LineRenderer:

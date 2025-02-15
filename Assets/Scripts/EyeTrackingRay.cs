@@ -5,6 +5,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.TeleopInterfaces;
+using RosMessageTypes.Std;
+using System.Diagnostics.CodeAnalysis;
 [RequireComponent(typeof(LineRenderer))]
 
 public class EyeTrackingRay : MonoBehaviour
@@ -26,9 +28,12 @@ public class EyeTrackingRay : MonoBehaviour
 
     [SerializeField]
     private bool visualizeLine = false;
-    
     [SerializeField]
-    private string serviceName;
+    private bool mainEye;    
+    [SerializeField]
+    private string graspAssistServiceName;
+    [SerializeField]
+    private string headViewServiceName = "head_view";
 
     [SerializeField]
     private Camera cameraFacing;
@@ -42,7 +47,8 @@ public class EyeTrackingRay : MonoBehaviour
     {
      lineRenderer = GetComponent<LineRenderer>();
      ros = ROSConnection.GetOrCreateInstance();
-     ros.RegisterRosService<GraspTriggerRequest, GraspTriggerResponse>(serviceName);
+     ros.RegisterRosService<GraspTriggerRequest, GraspTriggerResponse>(graspAssistServiceName);
+     ros.RegisterRosService<SetBoolRequest, SetBoolResponse>(headViewServiceName);
      if(visualizeLine)
      {
         SetupRay(); 
@@ -76,32 +82,47 @@ public class EyeTrackingRay : MonoBehaviour
                 lineRenderer.startColor=UnityEngine.Color.yellow;
                 lineRenderer.endColor=UnityEngine.Color.yellow;
             }
-            if (hit.collider.gameObject == plane.gameObject)
+            //If grip button is pressed and the user is looking at the image plane, activate grasping assistance
+            if(hit.collider.gameObject == plane.gameObject)
             {
-                //If trigger is held, activate gripper, else deactivate gripper
-                if(OVRInput.Get(OVRInput.RawButton.RIndexTrigger) != prevButtonState)
+                Vector3 point  = hit.point;
+                point[2] = point[2]-0.3f;
+                cursorCircle.transform.position = point;
+                cursorCircle.transform.LookAt(2*hit.point-cameraFacing.transform.position);
+
+                if (OVRInput.Get(OVRInput.RawButton.RHandTrigger) && OVRInput.Get(OVRInput.RawButton.RHandTrigger)!= prevButtonState)
+                {   
+                    Debug.Log($"Grasp requsted in eye: {mainEye}");
+                    prevButtonState = OVRInput.Get(OVRInput.RawButton.RHandTrigger);
+                    GraspTriggerRequest graspReq = new GraspTriggerRequest();
+                    double[] gazePoint = {hit.textureCoord.x, hit.textureCoord.y};
+                    graspReq.gaze_point.data = gazePoint;
+                    ros.SendServiceMessage<GraspTriggerResponse>(graspAssistServiceName,graspReq,GraspTriggerCallback);
+                }
+                else if(!OVRInput.Get(OVRInput.RawButton.RHandTrigger) && OVRInput.Get(OVRInput.RawButton.RHandTrigger) != prevButtonState)
                 {
-                    prevButtonState = OVRInput.Get(OVRInput.RawButton.RIndexTrigger);
-                    if(OVRInput.Get(OVRInput.RawButton.RIndexTrigger))
-                    {   
-                        Vector3 point  = hit.point;
-                        point[2] = point[2]-0.3f;
-                        cursorCircle.transform.position = point;
-                        cursorCircle.transform.LookAt(2*hit.point-cameraFacing.transform.position);
-                        GraspTriggerRequest graspReq = new GraspTriggerRequest();
-                        double[] gazePoint = {hit.textureCoord.x, hit.textureCoord.y};
-                        graspReq.gaze_point.data = gazePoint;
-                        ros.SendServiceMessage<GraspTriggerResponse>(serviceName,graspReq,GraspTriggerCallback);
+                    prevButtonState = OVRInput.Get(OVRInput.RawButton.RHandTrigger);
+                    if (mainEye)
+                    {  
+                        SetBoolRequest headViewReq = new SetBoolRequest();
+                        headViewReq.data = true;
+                        ros.SendServiceMessage<SetBoolResponse>(headViewServiceName,headViewReq, HeadViewCallback);
+
                     }
-                    // Debug.Log($"UV Point: {hit.textureCoord}");
                 }
             }
-            
+            // If grip is held, and trigger is pressed trigger grasp based on sight
+            // do a trigger state check in here
         }
     }
 
     private void GraspTriggerCallback(GraspTriggerResponse response)
     {
-        Debug.Log($"Response: {response.message}");
+        // Debug.Log($"Response: {response.message}");
+    }
+
+    private void HeadViewCallback(SetBoolResponse response)
+    {
+        // Debug.Log($"Response: {response.message}");
     }
 }
