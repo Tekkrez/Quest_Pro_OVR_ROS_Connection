@@ -316,7 +316,9 @@ MonoBehaviour:
   visualizeLine: 0
   mainEye: 0
   graspAssistServiceName: left_trigger_grasp
+  chooseGraspServiceName: left_choose_grasp
   headViewServiceName: set_head_view
+  setTrackingServiceName: toggle_tracking
   cameraFacing: {fileID: 1577749885}
 --- !u!120 &143784111
 LineRenderer:
@@ -1191,7 +1193,9 @@ MonoBehaviour:
   visualizeLine: 0
   mainEye: 1
   graspAssistServiceName: right_trigger_grasp
+  chooseGraspServiceName: right_choose_grasp
   headViewServiceName: set_head_view
+  setTrackingServiceName: toggle_tracking
   cameraFacing: {fileID: 1577749885}
 --- !u!120 &1301458987
 LineRenderer:

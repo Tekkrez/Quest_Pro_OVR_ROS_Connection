@@ -33,29 +33,37 @@ public class EyeTrackingRay : MonoBehaviour
     [SerializeField]
     private string graspAssistServiceName;
     [SerializeField]
+    private string chooseGraspServiceName;
+    [SerializeField]
     private string headViewServiceName = "head_view";
+    [SerializeField]
+    private string graspServiceName = "set_gripper_state";
 
     [SerializeField]
     private Camera cameraFacing;
     private LineRenderer lineRenderer;
     private bool prevButtonState;
+
+    private bool prevTriggerState;
     // Service stuff
     ROSConnection ros;
 
     // Start is called before the first frame update
     void Start()
     {
-     lineRenderer = GetComponent<LineRenderer>();
-     ros = ROSConnection.GetOrCreateInstance();
-     ros.RegisterRosService<GraspTriggerRequest, GraspTriggerResponse>(graspAssistServiceName);
-     ros.RegisterRosService<SetBoolRequest, SetBoolResponse>(headViewServiceName);
-     if(visualizeLine)
-     {
-        SetupRay(); 
-     }
-     else
-     {
-        lineRenderer.enabled = false;
+        lineRenderer = GetComponent<LineRenderer>();
+        ros = ROSConnection.GetOrCreateInstance();
+        ros.RegisterRosService<GraspTriggerRequest, GraspTriggerResponse>(graspAssistServiceName);
+        ros.RegisterRosService<SetBoolRequest, SetBoolResponse>(headViewServiceName);
+        ros.RegisterRosService<GraspTriggerRequest, GraspTriggerResponse>(chooseGraspServiceName);
+        ros.RegisterRosService<SetBoolRequest, SetBoolResponse>(graspServiceName);
+        if(visualizeLine)
+        {
+            SetupRay(); 
+        }
+        else
+        {
+            lineRenderer.enabled = false;
      }
     }
 
@@ -92,7 +100,7 @@ public class EyeTrackingRay : MonoBehaviour
 
                 if (OVRInput.Get(OVRInput.RawButton.RHandTrigger) && OVRInput.Get(OVRInput.RawButton.RHandTrigger)!= prevButtonState)
                 {   
-                    Debug.Log($"Grasp requsted in eye: {mainEye}");
+                    // Debug.Log($"Grasp requsted in eye: {mainEye}");
                     prevButtonState = OVRInput.Get(OVRInput.RawButton.RHandTrigger);
                     GraspTriggerRequest graspReq = new GraspTriggerRequest();
                     double[] gazePoint = {hit.textureCoord.x, hit.textureCoord.y};
@@ -110,10 +118,39 @@ public class EyeTrackingRay : MonoBehaviour
 
                     }
                 }
+
+                if(OVRInput.Get(OVRInput.RawButton.RHandTrigger) && OVRInput.Get(OVRInput.RawButton.RIndexTrigger) != prevTriggerState)
+                {
+                    prevTriggerState = OVRInput.Get(OVRInput.RawButton.RIndexTrigger);
+                    if(OVRInput.Get(OVRInput.RawButton.RIndexTrigger))
+                    {
+                        GraspTriggerRequest chooseGraspReq = new GraspTriggerRequest();
+                        double[] gazePoint = {hit.textureCoord.x, hit.textureCoord.y};
+                        chooseGraspReq.gaze_point.data = gazePoint;
+                        ros.SendServiceMessage<GraspTriggerResponse>(chooseGraspServiceName,chooseGraspReq,GraspTriggerCallback);
+                    }
+                }                
+
             }
             // If grip is held, and trigger is pressed trigger grasp based on sight
             // do a trigger state check in here
         }
+
+        if(!OVRInput.Get(OVRInput.RawButton.RIndexTrigger) && OVRInput.Get(OVRInput.RawButton.RIndexTrigger) != prevTriggerState)
+        {
+            prevTriggerState = OVRInput.Get(OVRInput.RawButton.RIndexTrigger);
+            {
+                if(mainEye)
+                {
+                    SetBoolRequest graspRequest = new SetBoolRequest(false);
+                    ros.SendServiceMessage<SetBoolResponse>(graspServiceName,graspRequest, toggleTrackingCallback);
+                }
+            }
+        }
+    }
+    private void toggleTrackingCallback(SetBoolResponse response)
+    {
+        // Debug.Log($"Response: {response.message}");
     }
 
     private void GraspTriggerCallback(GraspTriggerResponse response)

@@ -37,7 +37,6 @@ public class SendControllerData : MonoBehaviour
                 leftRotationVal = OVRInput.GetLocalControllerRotation(OVRInput.Controller.LTouch);
                 rightPostitionVal = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
                 rightRotationVal = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch);
-
             }
             else
             {
